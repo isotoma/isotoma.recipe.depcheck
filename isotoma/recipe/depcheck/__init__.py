@@ -33,6 +33,14 @@ class Depcheck(object):
             mode = os.stat(e)[stat.ST_MODE]
             if not stat.S_IXOTH & mode:
                 raise DependencyError("Dependency %s is not executable" % e)
+        for d in self.options.get('directory', '').strip().split():
+            d = d.strip()
+            if not os.path.isdir(d):
+                raise DependencyError("Dependency %s is not a directory" % d)
+        for f in self.options.get('file', '').strip().split():
+            f = f.strip()
+            if not os.path.isfile(f):
+                raise DependencyError("Dependency %s is not a file" % f)
         locales = [x.split(" ",1)[0] for x in open(self.options["locale-file"]).read().split("\n")]
         for l in self.options.get("locale", '').strip().split():
             l = l.strip()

@@ -33,6 +33,10 @@ Parameters
 
 executable
     A list of one or more paths to files that must be executable
+directory
+    A list of one or more paths to inodes that must exist and be directories
+file
+    A list of one or more paths to inodes that must exist and be files
 locale-file
     The name of a file on disk to look for locales in (defaults to the Ubuntu location)
 locale
