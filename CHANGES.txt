@@ -1,0 +1,7 @@
+Changelog
+=========
+
+0.0.2dev (unreleased)
+---------------------
+
+- Better error handling

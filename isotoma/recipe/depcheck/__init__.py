@@ -15,7 +15,7 @@
 import os
 import stat
 
-class DependencyError(Exception): pass
+from zc.buildout import UserError
 
 class Depcheck(object):
 
@@ -29,23 +29,23 @@ class Depcheck(object):
         for e in self.options.get('executable', '').strip().split():
             e = e.strip()
             if not os.path.exists(e):
-                raise DependencyError("Dependency %s does not exist" % e)
+                raise UserError("Dependency %s does not exist" % e)
             mode = os.stat(e)[stat.ST_MODE]
             if not stat.S_IXOTH & mode:
-                raise DependencyError("Dependency %s is not executable" % e)
+                raise UserError("Dependency %s is not executable" % e)
         for d in self.options.get('directory', '').strip().split():
             d = d.strip()
             if not os.path.isdir(d):
-                raise DependencyError("Dependency %s is not a directory" % d)
+                raise UserError("Dependency %s is not a directory" % d)
         for f in self.options.get('file', '').strip().split():
             f = f.strip()
             if not os.path.isfile(f):
-                raise DependencyError("Dependency %s is not a file" % f)
+                raise UserError("Dependency %s is not a file" % f)
         locales = [x.split(" ",1)[0] for x in open(self.options["locale-file"]).read().split("\n")]
         for l in self.options.get("locale", '').strip().split():
             l = l.strip()
             if l not in locales:
-                raise DependencyError("Missing locale %s from system" % l)
+                raise UserError("Missing locale %s from system" % l)
         return []
 
     def update(self):
