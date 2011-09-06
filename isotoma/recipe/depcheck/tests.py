@@ -76,3 +76,15 @@ class TestDepcheck(unittest.TestCase):
             "current-user": "4284vp984r984jpf8q4f98wefkdefj043"
         })
         self.assertRaises(UserError, dc.install)
+
+    def test_users(self):
+        dc = Depcheck(None, None, {
+            "users": "root\ndaemon\nbin",
+        })
+        dc.install()
+
+    def test_nonexistent_user(self):
+        dc = Depcheck(None, None, {
+            "users": "4284vp984r984jpf8q4f98wefkdefj043"
+        })
+        self.assertRaises(UserError, dc.install)
