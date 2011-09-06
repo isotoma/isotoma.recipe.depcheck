@@ -34,55 +34,68 @@ class Depcheck(object):
         for option in values_str.strip().split():
             yield option.strip()
 
+    def check_executables(self):
+        # Check for executables
+        for e in self.values(self.options.get("executable", "")):
+            if not os.path.exists(e):
+                raise UserError("Dependency %s does not exist" % e)
+            mode = os.stat(e)[stat.ST_MODE]
+            if not stat.S_IXOTH & mode:
+                raise UserError("Dependency %s is not executable" % e)
+
+    def check_dirs(self):
+        # Check for directories
+        for d in self.values(self.options.get("directory", "")):
+            if not os.path.isdir(d):
+                raise UserError("Dependency %s is not a directory" % d)
+
+    def check_files(self):
+        # Check for files
+        for f in self.values(self.options.get("file", "")):
+            if not os.path.isfile(f):
+                raise UserError("Dependency %s is not a file" % f)
+    
+    def check_locales(self):
+        # Check for locales
+        locales = [x.split(" ",1)[0] for x in open(
+            self.options["locale-file"]
+        ).read().split("\n")]
+
+        for l in self.values(self.options.get("locale", "")):
+            if l not in locales:
+                raise UserError("Missing locale %s from system" % l)
+
+    def check_current_user(self):
+        # Check current user
+        current_user = self.options.get("current-user", None)
+        if current_user:
+            import getpass
+            if not current_user == getpass.getuser():
+                raise UserError("Buildout must be run as user %s" % current_user)
+
+
+    # FIXME: Make this work with LDAP users as well
+    def check_users(self):
+        # Check system-installed users
+        PASSWD_FILE = "/etc/passwd"
+        f = open(PASSWD_FILE)
+        users = f.read()
+        f.close()
+
+        users = [u.split(":")[0] for u in users.splitlines()]
+        for user in self.values(self.options.get("users", "")):
+            if user not in users:
+                raise UserError("Missing user %s from system" % user)
+
+
     def install(self):
         try:
-            # Check for executables
-            for e in self.values(self.options.get("executable", "")):
-                if not os.path.exists(e):
-                    raise UserError("Dependency %s does not exist" % e)
-                mode = os.stat(e)[stat.ST_MODE]
-                if not stat.S_IXOTH & mode:
-                    raise UserError("Dependency %s is not executable" % e)
-
-            # Check for directories
-            for d in self.values(self.options.get("directory", "")):
-                if not os.path.isdir(d):
-                    raise UserError("Dependency %s is not a directory" % d)
-
-            # Check for files
-            for f in self.values(self.options.get("file", "")):
-                if not os.path.isfile(f):
-                    raise UserError("Dependency %s is not a file" % f)
-
-            # Check for locales
-            locales = [x.split(" ",1)[0] for x in open(
-                self.options["locale-file"]
-            ).read().split("\n")]
-
-            for l in self.values(self.options.get("locale", "")):
-                if l not in locales:
-                    raise UserError("Missing locale %s from system" % l)
-
-            # Check current user
-            current_user = self.options.get("current-user", None)
-            if current_user:
-                import getpass
-                if not current_user == getpass.getuser():
-                    raise UserError("Buildout must be run as user %s" % current_user)
-
-
-            # Check system-installed users
-            # FIXME: Make this work with LDAP users as well
-            PASSWD_FILE = "/etc/passwd"
-            f = open(PASSWD_FILE)
-            users = f.read()
-            f.close()
-
-            users = [u.split(":")[0] for u in users.splitlines()]
-            for user in self.values(self.options.get("users", "")):
-                if user not in users:
-                    raise UserError("Missing user %s from system" % user)
-
+            self.check_executables()
+            self.check_dirs()
+            self.check_files()
+            self.check_locales()
+            self.check_current_user()
+            self.check_users()
         except UserError, e:
             if self.options["action"] == "warn":
                 self.log.warn(str(e))
