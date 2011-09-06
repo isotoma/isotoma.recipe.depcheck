@@ -88,3 +88,15 @@ class TestDepcheck(unittest.TestCase):
             "users": "4284vp984r984jpf8q4f98wefkdefj043"
         })
         self.assertRaises(UserError, dc.install)
+
+    def test_pyversion(self):
+        dc = Depcheck(None, None, {
+            "python": "\t2.3\n\t2.4\n\t2.5\n\t2.6\n\t2.7\n\t3.0"
+        })
+        dc.install()
+
+    def test_incorrect_pyversion(self):
+        dc = Depcheck(None, None, {
+            "python": "\tfoo"
+        })
+        self.assertRaises(UserError, dc.install)
