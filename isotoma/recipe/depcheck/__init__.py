@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import os
 import stat
 import logging
@@ -37,8 +38,9 @@ class Depcheck(object):
         self._fail = True
 
     def values(self, values_str):
-        for option in values_str.strip().split():
-            yield option.strip()
+        if values_str:
+            for option in values_str.strip().split():
+                yield option.strip()
 
     def check_executables(self):
         # Check for executables
@@ -95,6 +97,17 @@ class Depcheck(object):
             if user not in users:
                 self.dep_fail("Missing user %s from system" % user)
 
+    def check_python_version(self):
+        def this_pyversion():
+            return sys.version[:3]
+
+        if self.options.get("python", None):
+            if not this_pyversion() in self.values(self.options.get("python")):
+                self.dep_fail("Require python version %r, using %s" % (
+                    self.values(self.options.get("python")),
+                    this_pyversion()
+                ))
+
 
     def install(self):
         self.check_executables()
@@ -103,6 +116,7 @@ class Depcheck(object):
         self.check_locales()
         self.check_current_user()
         self.check_users()
+        self.check_python_version()
 
         if self._fail:
             if not self.options["action"] == "warn":
