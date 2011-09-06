@@ -1,5 +1,6 @@
 import unittest
-from isotoma.recipe.depcheck import Depcheck, DependencyError
+from isotoma.recipe.depcheck import Depcheck
+from zc.buildout import UserError
 import tempfile
 import os
 
@@ -39,7 +40,7 @@ class TestDepcheck(unittest.TestCase):
             "locale-file": self.locale_file.name,
             "locale": "\n    ar_AR.UTF-8\n    de_DE.UTF-8",
         })
-        self.assertRaises(DependencyError, dc.install)
+        self.assertRaises(UserError, dc.install)
 
     def test_executable(self):
         dc = Depcheck(None, None, {
@@ -51,7 +52,4 @@ class TestDepcheck(unittest.TestCase):
         dc = Depcheck(None, None, {
             "executable": "/etc/hosts"
         })
-        self.assertRaises(DependencyError, dc.install)
-
-
-
+        self.assertRaises(UserError, dc.install)
