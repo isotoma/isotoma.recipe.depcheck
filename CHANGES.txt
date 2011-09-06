@@ -1,10 +1,21 @@
 Changelog
 =========
 
-0.0.3 (unreleased)
+0.0.3 (2011-09-06)
 ------------------
 
-- Nothing changed yet.
+- Report on all dependency requirements prior to raising a UserError
+- The buildout-created bin/test now runs the unit recipe's unit tests
+- Added option "action = warn" (default is "action = fail") to just alert the
+  user to dependency failures, but allow the buildout to continue.
+- Added option "current-user", to ensure that the buildout is being run as the
+  required system user, e.g. "django".
+- Added option "users" to ensure that particular users are present on the system
+  WARNING however that this retrieves its user list from /etc/passwd, so LDAP
+  and the likes are not supported.
+- Added option "python" to check that the correct python version is being used.
+  Multiple python versions are allowed, one-per-line. Only major and minor
+  version numbers are accounted for, i.e. 2.6, NOT 2.6.3.
 
 
 0.0.2 (2011-08-16)
