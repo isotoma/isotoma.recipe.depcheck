@@ -53,3 +53,38 @@ class TestDepcheck(unittest.TestCase):
             "executable": "/etc/hosts"
         })
         self.assertRaises(UserError, dc.install)
+
+    def test_warn(self):
+        dc = Depcheck(None, None, {
+            "executable": "/etc/hosts",
+            "action": "warn",
+        })
+        dc.install()
+
+    def test_current_user(self):
+        import subprocess
+        p = subprocess.Popen(["whoami"], stdout=subprocess.PIPE)
+        user = p.stdout.read().strip()
+
+        dc = Depcheck(None, None, {
+            "current-user": user,
+        })
+        dc.install()
+
+    def test_incorrect_current_user(self):
+        dc = Depcheck(None, None, {
+            "current-user": "4284vp984r984jpf8q4f98wefkdefj043"
+        })
+        self.assertRaises(UserError, dc.install)
+
+    def test_users(self):
+        dc = Depcheck(None, None, {
+            "users": "root\ndaemon\nbin",
+        })
+        dc.install()
+
+    def test_nonexistent_user(self):
+        dc = Depcheck(None, None, {
+            "users": "4284vp984r984jpf8q4f98wefkdefj043"
+        })
+        self.assertRaises(UserError, dc.install)
