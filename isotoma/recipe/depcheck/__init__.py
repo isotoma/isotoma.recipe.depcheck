@@ -70,6 +70,19 @@ class Depcheck(object):
                 if not current_user == getpass.getuser():
                     raise UserError("Buildout must be run as user %s" % current_user)
 
+
+            # Check system-installed users
+            # FIXME: Make this work with LDAP users as well
+            PASSWD_FILE = "/etc/passwd"
+            f = open(PASSWD_FILE)
+            users = f.read()
+            f.close()
+
+            users = [u.split(":")[0] for u in users.splitlines()]
+            for user in self.values(self.options.get("users", "")):
+                if user not in users:
+                    raise UserError("Missing user %s from system" % user)
+
         except UserError, e:
             if self.options["action"] == "warn":
                 self.log.warn(str(e))
