@@ -37,7 +37,7 @@ class Depcheck(object):
     def install(self):
         try:
             # Check for executables
-            for e in self.values(self.options.get('executable', '')):
+            for e in self.values(self.options.get("executable", "")):
                 if not os.path.exists(e):
                     raise UserError("Dependency %s does not exist" % e)
                 mode = os.stat(e)[stat.ST_MODE]
@@ -45,12 +45,12 @@ class Depcheck(object):
                     raise UserError("Dependency %s is not executable" % e)
 
             # Check for directories
-            for d in self.values(self.options.get('directory', '')):
+            for d in self.values(self.options.get("directory", "")):
                 if not os.path.isdir(d):
                     raise UserError("Dependency %s is not a directory" % d)
 
             # Check for files
-            for f in self.values(self.options.get('file', '')):
+            for f in self.values(self.options.get("file", "")):
                 if not os.path.isfile(f):
                     raise UserError("Dependency %s is not a file" % f)
 
@@ -59,7 +59,7 @@ class Depcheck(object):
                 self.options["locale-file"]
             ).read().split("\n")]
 
-            for l in self.values(self.options.get("locale", '')):
+            for l in self.values(self.options.get("locale", "")):
                 if l not in locales:
                     raise UserError("Missing locale %s from system" % l)
 
