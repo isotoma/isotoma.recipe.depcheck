@@ -82,13 +82,15 @@ class Depcheck(object):
 
     # FIXME: Make this work with LDAP users as well
     def check_users(self):
-        # Check system-installed users
-        PASSWD_FILE = "/etc/passwd"
-        f = open(PASSWD_FILE)
-        users = f.read()
-        f.close()
+        def fetch_user_list():
+            PASSWD_FILE = "/etc/passwd"
+            f = open(PASSWD_FILE)
+            users = f.read()
+            f.close()
+            return [u.split(":")[0] for u in users.splitlines()]
 
-        users = [u.split(":")[0] for u in users.splitlines()]
+        users = fetch_user_list()
+
         for user in self.values(self.options.get("users", "")):
             if user not in users:
                 self.dep_fail("Missing user %s from system" % user)
