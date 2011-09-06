@@ -24,28 +24,37 @@ class Depcheck(object):
         self.options = options
         self.buildout = buildout
         self.options.setdefault("locale-file", "/var/lib/locales/supported.d/local")
+        # Default action upon missing dep is to fail
+        self.options.setdefault("action", "fail")
 
     def install(self):
-        for e in self.options.get('executable', '').strip().split():
-            e = e.strip()
-            if not os.path.exists(e):
-                raise UserError("Dependency %s does not exist" % e)
-            mode = os.stat(e)[stat.ST_MODE]
-            if not stat.S_IXOTH & mode:
-                raise UserError("Dependency %s is not executable" % e)
-        for d in self.options.get('directory', '').strip().split():
-            d = d.strip()
-            if not os.path.isdir(d):
-                raise UserError("Dependency %s is not a directory" % d)
-        for f in self.options.get('file', '').strip().split():
-            f = f.strip()
-            if not os.path.isfile(f):
-                raise UserError("Dependency %s is not a file" % f)
-        locales = [x.split(" ",1)[0] for x in open(self.options["locale-file"]).read().split("\n")]
-        for l in self.options.get("locale", '').strip().split():
-            l = l.strip()
-            if l not in locales:
-                raise UserError("Missing locale %s from system" % l)
+        try:
+            for e in self.options.get('executable', '').strip().split():
+                e = e.strip()
+                if not os.path.exists(e):
+                    raise UserError("Dependency %s does not exist" % e)
+                mode = os.stat(e)[stat.ST_MODE]
+                if not stat.S_IXOTH & mode:
+                    raise UserError("Dependency %s is not executable" % e)
+            for d in self.options.get('directory', '').strip().split():
+                d = d.strip()
+                if not os.path.isdir(d):
+                    raise UserError("Dependency %s is not a directory" % d)
+            for f in self.options.get('file', '').strip().split():
+                f = f.strip()
+                if not os.path.isfile(f):
+                    raise UserError("Dependency %s is not a file" % f)
+            locales = [x.split(" ",1)[0] for x in open(self.options["locale-file"]).read().split("\n")]
+            for l in self.options.get("locale", '').strip().split():
+                l = l.strip()
+                if l not in locales:
+                    raise UserError("Missing locale %s from system" % l)
+        except UserError, e:
+            if self.options["action"] == "warn":
+                self.log.warn(str(e))
+            else:
+                raise   # re-raise
+
         return []
 
     def update(self):
