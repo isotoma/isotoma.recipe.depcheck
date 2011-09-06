@@ -30,6 +30,12 @@ class Depcheck(object):
         
         self.log = logging.getLogger(__name__)
 
+        self._fail = False
+
+    def dep_fail(self, message):
+        self.log.warn(message)
+        self._fail = True
+
     def values(self, values_str):
         for option in values_str.strip().split():
             yield option.strip()
@@ -38,22 +44,22 @@ class Depcheck(object):
         # Check for executables
         for e in self.values(self.options.get("executable", "")):
             if not os.path.exists(e):
-                raise UserError("Dependency %s does not exist" % e)
+                self.dep_fail("Dependency %s does not exist" % e)
             mode = os.stat(e)[stat.ST_MODE]
             if not stat.S_IXOTH & mode:
-                raise UserError("Dependency %s is not executable" % e)
+                self.dep_fail("Dependency %s is not executable" % e)
 
     def check_dirs(self):
         # Check for directories
         for d in self.values(self.options.get("directory", "")):
             if not os.path.isdir(d):
-                raise UserError("Dependency %s is not a directory" % d)
+                self.dep_fail("Dependency %s is not a directory" % d)
 
     def check_files(self):
         # Check for files
         for f in self.values(self.options.get("file", "")):
             if not os.path.isfile(f):
-                raise UserError("Dependency %s is not a file" % f)
+                self.dep_fail("Dependency %s is not a file" % f)
     
     def check_locales(self):
         # Check for locales
@@ -63,7 +69,7 @@ class Depcheck(object):
 
         for l in self.values(self.options.get("locale", "")):
             if l not in locales:
-                raise UserError("Missing locale %s from system" % l)
+                self.dep_fail("Missing locale %s from system" % l)
 
     def check_current_user(self):
         # Check current user
@@ -71,7 +77,7 @@ class Depcheck(object):
         if current_user:
             import getpass
             if not current_user == getpass.getuser():
-                raise UserError("Buildout must be run as user %s" % current_user)
+                self.dep_fail("Buildout must be run as user %s" % current_user)
 
 
     # FIXME: Make this work with LDAP users as well
@@ -85,22 +91,20 @@ class Depcheck(object):
         users = [u.split(":")[0] for u in users.splitlines()]
         for user in self.values(self.options.get("users", "")):
             if user not in users:
-                raise UserError("Missing user %s from system" % user)
+                self.dep_fail("Missing user %s from system" % user)
 
 
     def install(self):
-        try:
-            self.check_executables()
-            self.check_dirs()
-            self.check_files()
-            self.check_locales()
-            self.check_current_user()
-            self.check_users()
-        except UserError, e:
-            if self.options["action"] == "warn":
-                self.log.warn(str(e))
-            else:
-                raise   # re-raise
+        self.check_executables()
+        self.check_dirs()
+        self.check_files()
+        self.check_locales()
+        self.check_current_user()
+        self.check_users()
+
+        if self._fail:
+            if not self.options["action"] == "warn":
+                raise UserError("Requirements not met.")
 
         return []
 
