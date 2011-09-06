@@ -62,8 +62,9 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_current_user(self):
-        import getpass
-        user = getpass.getuser()
+        import subprocess
+        p = subprocess.Popen(["whoami"], stdout=subprocess.PIPE)
+        user = p.stdout.read().strip()
 
         dc = Depcheck(None, None, {
             "current-user": user,
