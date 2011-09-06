@@ -4,7 +4,7 @@ Dependency checker buildout recipe
 If you are relying on the OS to provide some facilities for your software, this
 recipe can help verify that the dependencies exist.
 
-Right now this will check only two types of things:
+The recipe can check for any of the following:
 
     * If certain files exist in the filesystem and that they are executable
     * If certain locales are available on the system
