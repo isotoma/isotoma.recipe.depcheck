@@ -1,16 +1,22 @@
 Dependency checker buildout recipe
 ==================================
 
-If you are relying on the OS to provide some facilities for your software, this recipe can help verify that the dependencies exist.
+If you are relying on the OS to provide some facilities for your software, this
+recipe can help verify that the dependencies exist.
 
 Right now this will check only two types of things:
 
     * If certain files exist in the filesystem and that they are executable
     * If certain locales are available on the system
+    * If buildout is being run as a particular user
+    * If certain users are present on the system
+    * If buildout is being run by any of a list of python versions
 
-For the latter this is done in quite a Debian/Ubuntu specific way, so may not work for you.
+Note that locales are checked in an Ubuntu-specific way, so may not work for
+you.
 
-If any dependencies fail, the recipe will raise an exception immediately.
+If any dependencies fail, and the "action" option isn't set to "warn", the
+recipe will raise an exception.
 
 An example::
 
@@ -27,6 +33,15 @@ An example::
         ${foo:program}
         ${bar:binary}
     locale = ${bar:locale}
+    current-user = webappuser
+    users =
+        taskqueue
+        www-data
+    python =
+        2.5
+        2.6
+        2.7
+    action = warn
 
 Parameters
 ----------
@@ -41,6 +56,16 @@ locale-file
     The name of a file on disk to look for locales in (defaults to the Ubuntu location)
 locale
     A list of one or more locales to check are in locale-file
+current-user
+    Ensures that buildout is being run by the user specified.
+users
+    A list of users that must have accounts on the local system. (Users must 
+    be present in /etc/passwd)
+python
+    A list of python versions that buildout be executed under (useful if your
+    application is py2.4-only, etc.)
+action
+    Either "warn" or "fail". The default is to "fail" if a dependency isn't met.
 
 License
 -------
