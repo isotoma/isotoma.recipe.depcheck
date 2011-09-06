@@ -14,6 +14,7 @@
 
 import os
 import stat
+import logging
 
 from zc.buildout import UserError
 
@@ -26,6 +27,8 @@ class Depcheck(object):
         self.options.setdefault("locale-file", "/var/lib/locales/supported.d/local")
         # Default action upon missing dep is to fail
         self.options.setdefault("action", "fail")
+        
+        self.log = logging.getLogger(__name__)
 
     def values(self, values_str):
         for option in values_str.strip().split():
