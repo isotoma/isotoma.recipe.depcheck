@@ -63,6 +63,13 @@ class Depcheck(object):
                 if l not in locales:
                     raise UserError("Missing locale %s from system" % l)
 
+            # Check current user
+            current_user = self.options.get("current-user", None)
+            if current_user:
+                import getpass
+                if not current_user == getpass.getuser():
+                    raise UserError("Buildout must be run as user %s" % current_user)
+
         except UserError, e:
             if self.options["action"] == "warn":
                 self.log.warn(str(e))
