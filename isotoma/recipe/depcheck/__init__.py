@@ -28,10 +28,11 @@ class Depcheck(object):
         self.options.setdefault("locale-file", "/var/lib/locales/supported.d/local")
         # Default action upon missing dep is to fail
         self.options.setdefault("action", "fail")
-        
+
         self.log = logging.getLogger(__name__)
 
         self._fail = False
+        self.check()
 
     def dep_fail(self, message):
         self.log.warn(message)
@@ -109,7 +110,7 @@ class Depcheck(object):
                 ))
 
 
-    def install(self):
+    def check(self):
         self.check_executables()
         self.check_dirs()
         self.check_files()
@@ -122,6 +123,7 @@ class Depcheck(object):
             if not self.options["action"] == "warn":
                 raise UserError("Requirements not met.")
 
+    def install(self):
         return []
 
     def update(self):
