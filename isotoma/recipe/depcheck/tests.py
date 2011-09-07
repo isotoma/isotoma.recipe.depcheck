@@ -36,11 +36,10 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_locales_not_exist(self):
-        dc = Depcheck(None, None, {
+        self.assertRaises(UserError, Depcheck, None, None, {
             "locale-file": self.locale_file.name,
             "locale": "\n    ar_AR.UTF-8\n    de_DE.UTF-8",
         })
-        self.assertRaises(UserError, dc.install)
 
     def test_executable(self):
         dc = Depcheck(None, None, {
@@ -49,10 +48,9 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_nonexecutable(self):
-        dc = Depcheck(None, None, {
+        self.assertRaises(UserError, Depcheck, None, None, {
             "executable": "/etc/hosts"
         })
-        self.assertRaises(UserError, dc.install)
 
     def test_warn(self):
         dc = Depcheck(None, None, {
@@ -72,10 +70,9 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_incorrect_current_user(self):
-        dc = Depcheck(None, None, {
+        self.assertRaises(UserError, Depcheck, None, None, {
             "current-user": "4284vp984r984jpf8q4f98wefkdefj043"
         })
-        self.assertRaises(UserError, dc.install)
 
     def test_users(self):
         dc = Depcheck(None, None, {
@@ -84,10 +81,9 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_nonexistent_user(self):
-        dc = Depcheck(None, None, {
+        self.assertRaises(UserError, Depcheck, None, None, {
             "users": "4284vp984r984jpf8q4f98wefkdefj043"
         })
-        self.assertRaises(UserError, dc.install)
 
     def test_pyversion(self):
         dc = Depcheck(None, None, {
@@ -96,7 +92,6 @@ class TestDepcheck(unittest.TestCase):
         dc.install()
 
     def test_incorrect_pyversion(self):
-        dc = Depcheck(None, None, {
+        self.assertRaises(UserError, Depcheck, None, None, {
             "python": "\tfoo"
         })
-        self.assertRaises(UserError, dc.install)
