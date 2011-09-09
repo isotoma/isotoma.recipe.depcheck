@@ -66,13 +66,19 @@ class Depcheck(object):
     
     def check_locales(self):
         # Check for locales
-        locales = [x.split(" ",1)[0] for x in open(
-            self.options["locale-file"]
-        ).read().split("\n")]
+        if not self.options.get("locale", None):
+            return
 
-        for l in self.values(self.options.get("locale", "")):
-            if l not in locales:
-                self.dep_fail("Missing locale %s from system" % l)
+        try:
+            locales = [x.split(" ",1)[0] for x in open(
+                self.options["locale-file"]
+            ).read().split("\n")]
+
+            for l in self.values(self.options.get("locale", "")):
+                if l not in locales:
+                    self.dep_fail("Missing locale %s from system" % l)
+        except IOError:
+            self.dep_fail("Could not locate locales file on this system")
 
     def check_current_user(self):
         # Check current user
