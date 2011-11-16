@@ -111,7 +111,7 @@ class Depcheck(object):
         if self.options.get("python", None):
             if not this_pyversion() in self.values(self.options.get("python")):
                 self.dep_fail("Require python version %r, using %s" % (
-                    self.values(self.options.get("python")),
+                    list(self.values(self.options.get("python"))),
                     this_pyversion()
                 ))
 
