@@ -48,9 +48,10 @@ class Depcheck(object):
         for e in self.values(self.options.get("executable", "")):
             if not os.path.exists(e):
                 self.dep_fail("Dependency %s does not exist" % e)
-            mode = os.stat(e)[stat.ST_MODE]
-            if not stat.S_IXOTH & mode:
-                self.dep_fail("Dependency %s is not executable" % e)
+            else:
+                mode = os.stat(e)[stat.ST_MODE]
+                if not stat.S_IXOTH & mode:
+                    self.dep_fail("Dependency %s is not executable" % e)
 
     def check_dirs(self):
         # Check for directories
@@ -63,7 +64,7 @@ class Depcheck(object):
         for f in self.values(self.options.get("file", "")):
             if not os.path.isfile(f):
                 self.dep_fail("Dependency %s is not a file" % f)
-    
+
     def check_locales(self):
         # Check for locales
         if not self.options.get("locale", None):

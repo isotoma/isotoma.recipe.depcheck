@@ -4,7 +4,8 @@ Changelog
 0.0.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Checking for executables would error out if the file was missing. Now only
+  tries to stat the file if it is there.
 
 
 0.0.6 (2012-04-08)
