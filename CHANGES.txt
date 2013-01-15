@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.7 (unreleased)
+0.0.7 (2013-01-15)
 ------------------
 
 - Checking for executables would error out if the file was missing. Now only
