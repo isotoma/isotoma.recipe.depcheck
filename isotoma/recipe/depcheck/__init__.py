@@ -20,13 +20,32 @@ import logging
 
 from zc.buildout import UserError
 
+
+try:
+    check_output = subprocess.check_output
+except AttributeError:
+    def check_output(*popenargs, **kwargs):
+        process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+        output, unused_err = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            cmd = kwargs.get("args")
+            if cmd is None:
+                cmd = popenargs[0]
+            raise subprocess.CalledProcessError(retcode, cmd, output=output)
+        return output
+
+
+DEFAULT_LOCALES = "/var/lib/locales/supported.d/local"
+
+
 class Depcheck(object):
 
     def __init__(self, buildout, name, options):
         self.name = name
         self.options = options
         self.buildout = buildout
-        self.options.setdefault("locale-file", "/var/lib/locales/supported.d/local")
+        self.options.setdefault("locale-file", DEFAULT_LOCALES)
         # Default action upon missing dep is to fail
         self.options.setdefault("action", "fail")
 
@@ -76,17 +95,20 @@ class Depcheck(object):
                 self.options["locale-file"]
             ).read().split("\n")]
         except IOError:
-            self.dep_fail("Could not locate locales file on this system")
-
-        try:
-            locales = subprocess.check_output(
-                ['locale', '-a']
-                ).decode('utf8').strip().split('\n')
-        except CalledProcessError:
-            self.dep_fail("Could not read locales from 'locale' command")
+            if self.options['locale-file'] != DEFAULT_LOCALES:
+                self.dep_fail("Could not locate locales file on this system")
+                return
+            else:
+                try:
+                    locales = list(map(str.lower, check_output(
+                        ['locale', '-a']
+                        ).strip().split('\n')))
+                except subprocess.CalledProcessError:
+                    self.dep_fail("Could not read locales from 'locale' command")
+                    return
 
         for l in self.values(self.options.get("locale", "")):
-            if l not in locales:
+            if l.lower() not in locales and l.lower().replace('-', '') not in locales:
                 self.dep_fail("Missing locale %s from system" % l)
 
     def check_current_user(self):
