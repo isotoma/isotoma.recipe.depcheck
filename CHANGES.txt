@@ -4,13 +4,13 @@ Changelog
 0.0.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix support for older pythons.
 
 
 0.0.8 (2014-11-20)
 ------------------
 
-- Nothing changed yet.
+- Use the output of locales command if required.
 
 
 0.0.7 (2013-01-15)
