@@ -15,6 +15,7 @@
 import sys
 import os
 import stat
+import subprocess
 import logging
 
 from zc.buildout import UserError
@@ -74,12 +75,19 @@ class Depcheck(object):
             locales = [x.split(" ",1)[0] for x in open(
                 self.options["locale-file"]
             ).read().split("\n")]
-
-            for l in self.values(self.options.get("locale", "")):
-                if l not in locales:
-                    self.dep_fail("Missing locale %s from system" % l)
         except IOError:
             self.dep_fail("Could not locate locales file on this system")
+
+        try:
+            locales = subprocess.check_output(
+                ['locale', '-a']
+                ).decode('utf8').strip().split('\n')
+        except CalledProcessError:
+            self.dep_fail("Could not read locales from 'locale' command")
+
+        for l in self.values(self.options.get("locale", "")):
+            if l not in locales:
+                self.dep_fail("Missing locale %s from system" % l)
 
     def check_current_user(self):
         # Check current user
